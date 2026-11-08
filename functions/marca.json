@@ -1,0 +1,11 @@
+{
+  "nome": "Lume",
+  "site": "https://lume.pt",
+  "regiaoBD": "europe-west1",
+  "fuso": "Europe/Lisbon",
+  "respostaEmHoras": 48,
+  "cores": {
+    "fundo": "#F6F1EA",
+    "texto": "#2B2420"
+  }
+}

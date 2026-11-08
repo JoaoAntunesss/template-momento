@@ -1,0 +1,198 @@
+{
+  "rules": {
+    "admins": {
+      "$uid": {
+        ".read": "auth != null && auth.uid === $uid"
+      }
+    },
+    "pedidos": {
+      ".read": "auth != null && root.child('admins/' + auth.uid).val() === true",
+      "$id": {
+        ".write": "(auth != null && root.child('admins/' + auth.uid).val() === true) || (!data.exists() && newData.child('estado').val() === 'novo')",
+        ".validate": "newData.hasChildren(['nome','email','tipo','criadoEm','estado'])",
+        "nome": {
+          ".validate": "newData.isString() && newData.val().length >= 2 && newData.val().length <= 80"
+        },
+        "email": {
+          ".validate": "newData.isString() && newData.val().length <= 120 && newData.val().matches(/^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$/)"
+        },
+        "telemovel": {
+          ".validate": "newData.isString() && newData.val().length <= 20"
+        },
+        "tipo": {
+          ".validate": "newData.isString() && newData.val().length <= 60"
+        },
+        "data": {
+          ".validate": "newData.isString() && newData.val().length <= 10"
+        },
+        "local": {
+          ".validate": "newData.isString() && newData.val().length <= 120"
+        },
+        "convidados": {
+          ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 2000"
+        },
+        "mensagem": {
+          ".validate": "newData.isString() && newData.val().length <= 1500"
+        },
+        "criadoEm": {
+          ".validate": "newData.isNumber() && newData.val() <= now"
+        },
+        "estado": {
+          ".validate": "newData.val() === 'novo' || newData.val() === 'respondido' || newData.val() === 'convertido'"
+        },
+        "projeto": {
+          ".validate": "newData.isString() && newData.val().length <= 24"
+        },
+        "$outro": {
+          ".validate": false
+        }
+      }
+    },
+    "projetos": {
+      ".read": "auth != null && root.child('admins/' + auth.uid).val() === true",
+      ".write": "auth != null && root.child('admins/' + auth.uid).val() === true",
+      "$c": {
+        ".read": "true",
+        "mensagens": {
+          "$m": {
+            ".write": "!data.exists() && newData.child('de').val() === 'cliente' && root.child('projetos/' + $c + '/info').exists()",
+            ".validate": "newData.hasChildren(['de','t','em'])",
+            "de": {
+              ".validate": "newData.val() === 'cliente' || newData.val() === 'marca'"
+            },
+            "t": {
+              ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 2000"
+            },
+            "em": {
+              ".validate": "newData.isNumber() && newData.val() <= now"
+            },
+            "$outro": {
+              ".validate": false
+            }
+          }
+        },
+        "notas": {
+          ".write": "root.child('projetos/' + $c + '/info').exists()",
+          ".validate": "newData.hasChildren(['em'])",
+          "horarios": {
+            "$h": {
+              ".validate": "($h === 'cerimonia' || $h === 'cocktail' || $h === 'jantar' || $h === 'bolo') && newData.isString() && newData.val().length <= 5"
+            }
+          },
+          "grupos": {
+            "$i": {
+              ".validate": "newData.isString() && newData.val().length <= 140"
+            }
+          },
+          "pessoas": {
+            "$i": {
+              ".validate": "newData.isString() && newData.val().length <= 140"
+            }
+          },
+          "pedidos": {
+            ".validate": "newData.isString() && newData.val().length <= 2000"
+          },
+          "em": {
+            ".validate": "newData.isNumber() && newData.val() <= now"
+          },
+          "$outro": {
+            ".validate": false
+          }
+        },
+        "ficheiros": {
+          "$f": {
+            ".write": "!data.exists() && newData.child('de').val() === 'cliente' && root.child('projetos/' + $c + '/info').exists()",
+            ".validate": "newData.hasChildren(['nome','tipo','tam','de','em'])",
+            "nome": {
+              ".validate": "newData.isString() && newData.val().length >= 1 && newData.val().length <= 120"
+            },
+            "tipo": {
+              ".validate": "newData.isString() && newData.val().length <= 100"
+            },
+            "tam": {
+              ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 10485760"
+            },
+            "de": {
+              ".validate": "newData.val() === 'cliente' || newData.val() === 'marca'"
+            },
+            "em": {
+              ".validate": "newData.isNumber() && newData.val() <= now"
+            },
+            "url": {
+              ".validate": "(auth != null && root.child('admins/' + auth.uid).val() === true) && newData.isString() && (newData.val().beginsWith('https://') || newData.val().beginsWith('img/'))"
+            },
+            "$outro": {
+              ".validate": false
+            }
+          }
+        },
+        "links": {
+          "$l": {
+            ".write": "!data.exists() && newData.child('de').val() === 'cliente' && root.child('projetos/' + $c + '/info').exists()",
+            ".validate": "newData.hasChildren(['url','de','em'])",
+            "url": {
+              ".validate": "newData.isString() && newData.val().length <= 500 && (newData.val().beginsWith('https://') || newData.val().beginsWith('http://'))"
+            },
+            "desc": {
+              ".validate": "newData.isString() && newData.val().length <= 120"
+            },
+            "de": {
+              ".validate": "newData.val() === 'cliente' || newData.val() === 'marca'"
+            },
+            "em": {
+              ".validate": "newData.isNumber() && newData.val() <= now"
+            },
+            "$outro": {
+              ".validate": false
+            }
+          }
+        },
+        "visto": {
+          "cliente": {
+            ".write": "root.child('projetos/' + $c + '/info').exists()",
+            ".validate": "newData.isNumber() && newData.val() <= now"
+          },
+          "marca": {
+            ".validate": "newData.isNumber() && newData.val() <= now"
+          },
+          "$outro": {
+            ".validate": false
+          }
+        },
+        "entregas": {
+          "$e": {
+            ".validate": "newData.hasChildren(['titulo','url','em'])",
+            "titulo": {
+              ".validate": "newData.isString() && newData.val().length <= 80"
+            },
+            "url": {
+              ".validate": "newData.isString() && newData.val().length <= 500 && newData.val().beginsWith('https://')"
+            },
+            "nota": {
+              ".validate": "newData.isString() && newData.val().length <= 160"
+            },
+            "validade": {
+              ".validate": "newData.isString() && newData.val().length <= 10"
+            },
+            "em": {
+              ".validate": "newData.isNumber() && newData.val() <= now"
+            },
+            "$outro": {
+              ".validate": false
+            }
+          }
+        }
+      }
+    },
+    "anexos": {
+      ".write": "auth != null && root.child('admins/' + auth.uid).val() === true",
+      "$c": {
+        ".read": "(auth != null && root.child('admins/' + auth.uid).val() === true) || root.child('projetos/' + $c + '/info').exists()",
+        "$f": {
+          ".write": "!data.exists() && root.child('projetos/' + $c + '/info').exists()",
+          ".validate": "newData.isString() && newData.val().beginsWith('data:') && newData.val().length <= 4600000"
+        }
+      }
+    }
+  }
+}
